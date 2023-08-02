@@ -26,7 +26,7 @@ class VkTools():
                      }
         return user_info
     
-    def serch_users(self, params):
+    def search_users(self, params):
 
         sex = 1 if params['sex'] == 2 else 2
         city = params['city']
@@ -93,5 +93,5 @@ class VkTools():
 if __name__ == '__main__':
     bot = VkTools(access_token)
     params = bot.get_profile_info(10294825)
-    users = bot.serch_users(params)
+    users = bot.search_users(params)
     print(bot.get_photos(users[2]['id']))
