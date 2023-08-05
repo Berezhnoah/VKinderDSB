@@ -3,15 +3,16 @@ import vk_api
 from vk_api.longpoll import VkLongPoll, VkEventType
 from vk_api.utils import get_random_id
 
-from config import comunity_token, access_token
+from config import community_token, access_token
 from core import VkTools
 
 class BotInterface():
 
-    def __init__(self,comunity_token, access_token):
-        self.interface = vk_api.VkApi(token=comunity_token)
+    def __init__(self,community_token, access_token):
+        self.interface = vk_api.VkApi(token=community_token)
         self.api = VkTools(access_token)
         self.params = None
+        
 
 
     def message_send(self, user_id, message, attachment=None):
@@ -33,11 +34,14 @@ class BotInterface():
 
                 if command == 'привет':
                     self.params = self.api.get_profile_info(event.user_id)
-                    self.message_send(event.user_id, f'Здравствуй, {self.params["name"]}!')
+                    self.message_send(event.user_id, f'Приветствую Вас, {self.params["name"]}!')
                 elif command == 'поиск':
+                    self.message_send (
+                        event.user_id, 'Выполняю поиск'
+                    )
                     users = self.api.search_users(self.params)
                     user = users.pop()
-                    #здесь логика дляё проверки бд
+
                     photos_user = self.api.get_photos(user['id'])                  
                     
                     attachment = ''
@@ -46,17 +50,19 @@ class BotInterface():
                         if num == 2:
                             break
                     self.message_send(event.user_id,
-                                      f'Встречайте {user["name"]}',
+                                      f'Знакомьтесь, {user["name"]}! Перейти на страницу: vk.com/{user["id"]}',
                                       attachment=attachment
                                       ) 
-                    #здесь логика для добавления в бд
+                #Альтернативный вариант запроса дополнительных фотографий
+                #elif command == 'еще фото':
+                    #self.message_send (event.user_id, attachment=attachment)    
                 elif command == 'пока':
                     self.message_send(event.user_id, 'До свидания!')
                 else:
-                    self.message_send(event.user_id, 'команда не опознана')
+                    self.message_send(event.user_id, 'Неизвестный запрос')
 
 
 
 if __name__ == '__main__':
-    bot = BotInterface(comunity_token, access_token)
+    bot = BotInterface(community_token, access_token)
     bot.event_handler()

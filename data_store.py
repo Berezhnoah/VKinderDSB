@@ -4,6 +4,7 @@ from sqlalchemy.orm import declarative_base
 from sqlalchemy import create_engine, MetaData
 from sqlalchemy.orm import Session
 from config import db_url_object
+import psycopg2
 
 # схема БД
 metadata = MetaData()
@@ -20,12 +21,15 @@ class Viewed(Base):
 engine = create_engine(db_url_object)
 Base.metadata.create_all(engine)
 with Session(engine) as session:
-    to_bd = Viewed(profile_id=1, worksheet_id=1)
-    session.add(to_bd)
-    session.commit()
-
+    to_bd = Viewed(profile_id = 1, worksheet_id = 1)
+    while to_bd == 1:
+        to_bd +=1
+        if to_bd >= 2:
+           continue     
+        session.add(to_bd)
+        session.commit()
+    
 # извлечение записей из БД
-
 engine = create_engine(db_url_object)
 with Session(engine) as session:
     from_bd = session.query(Viewed).filter(Viewed.profile_id==1).all()

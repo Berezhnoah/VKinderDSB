@@ -1,3 +1,4 @@
+from pprint import pprint
 from datetime import datetime 
 
 import vk_api
@@ -20,9 +21,10 @@ class VkTools():
         user_info = {'name': info['first_name'] + ' '+ info['last_name'],
                      'id':  info['id'],
                      'bdate': info['bdate'] if 'bdate' in info else None,
-                     'home_town': info['home_town'],
+                     'home_town': info['home_town'] if 'hometown' in info else None,
                      'sex': info['sex'],
-                     'city': info['city']['id']
+                     'city': info['city']['id'],
+                     'relation': info['relation'] if 'relation' in info else None 
                      }
         return user_info
     
@@ -31,14 +33,14 @@ class VkTools():
         sex = 1 if params['sex'] == 2 else 2
         city = params['city']
         curent_year = datetime.now().year
-        user_year = int(params['bdate'].split('.')[2])
+        user_year = int(params['bdate'].split('.')[2]) 
         age = curent_year - user_year
-        age_from = age - 5
-        age_to = age + 5
+        age_from = age - 10
+        age_to = age + 10
 
         users = self.api.method('users.search',
-                                {'count': 10,
-                                 'offset': 0,
+                                {'count': 20,
+                                 'offset': 10,
                                  'age_from': age_from,
                                  'age_to': age_to,
                                  'sex': sex,
@@ -60,7 +62,7 @@ class VkTools():
                             'name': user['first_name'] + ' ' + user['last_name']
                            }
                            )
-        
+            
         return res
 
     def get_photos(self, user_id):
@@ -87,11 +89,12 @@ class VkTools():
             
         res.sort(key=lambda x: x['likes']+x['comments']*10, reverse=True)
 
-        return res
+        return res[:10]
 
 
 if __name__ == '__main__':
     bot = VkTools(access_token)
     params = bot.get_profile_info(10294825)
     users = bot.search_users(params)
-    print(bot.get_photos(users[2]['id']))
+    print(bot.get_photos(users[10]['id']))
+ 
